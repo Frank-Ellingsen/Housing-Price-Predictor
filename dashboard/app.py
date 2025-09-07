@@ -4,7 +4,9 @@ import folium
 from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 sns.set_theme(style="darkgrid")
+
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
@@ -46,6 +48,7 @@ st.download_button(
         mime="text/csv"
     )
 
+
 fig, ax = plt.subplots()
 sns.histplot(prediction_df["Error"], bins=30, kde=True, ax=ax, color="purple")
 ax.set_title("Prediction Error Distribution")
@@ -69,6 +72,7 @@ st.download_button(
 uploaded_file = st.file_uploader("Upload housing data CSV", type="csv")
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
+    
 
     # Normalize column names
     df.columns = df.columns.str.strip().str.lower()
@@ -110,6 +114,37 @@ if uploaded_file:
     model = RandomForestRegressor(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
+    
+    # After model.fit(...) and y_pred = model.predict(X_test)
+
+    st.subheader("📈 Full Prediction Results")
+
+    prediction_df = pd.DataFrame({
+    "Actual Price": y_test,
+    "Predicted Price": y_pred,
+    "Error": y_test - y_pred
+})
+
+    st.dataframe(prediction_df.style.format({
+    "Actual Price": "${:,.0f}",
+    "Predicted Price": "${:,.0f}",
+    "Error": "${:,.0f}"
+}))
+
+    st.download_button(
+    label="Download Predictions",
+    data=prediction_df.to_csv(index=False),
+    file_name="predicted_prices.csv",
+    mime="text/csv"
+)
+
+    fig, ax = plt.subplots()
+    sns.histplot(prediction_df["Error"], bins=30, kde=True, ax=ax, color="purple")
+    ax.set_title("Prediction Error Distribution")
+    ax.set_xlabel("Error ($)")
+    st.pyplot(fig)
+
+    
 
     st.write("✅ Model trained. Ready for predictions.")      
 
