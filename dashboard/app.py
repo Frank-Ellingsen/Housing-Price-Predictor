@@ -12,7 +12,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("data/housing.csv")
+    return pd.read_csv("data/house.csv")
 
 data = load_data()
 
@@ -23,6 +23,19 @@ st.set_page_config(
 )
 
 st.title("🏘️ Housing Price Tier Prediction")
+
+with st.expander("📂 View Full Dataset"):
+    st.dataframe(data)
+st.dataframe(data.head(10))
+
+st.download_button(
+    label="Download Dataset",
+    data=data.to_csv(index=False),
+    file_name="housing.csv",
+    mime="text/csv"
+)
+
+
 
 uploaded_file = st.file_uploader("Upload housing data CSV", type="csv")
 if uploaded_file:
