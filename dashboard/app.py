@@ -12,11 +12,16 @@ from sklearn.metrics import mean_absolute_error, r2_score
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("housing.csv")
+    return pd.read_csv("data/housing.csv")
 
 data = load_data()
 
-st.set_page_config(page_title="🏠 Housing Price Dashboard", layout="wide")
+st.set_page_config(
+    page_title="Housing Price Predictor",
+    page_icon="🏠",
+    layout="wide"
+)
+
 st.title("🏘️ Housing Price Tier Prediction")
 
 uploaded_file = st.file_uploader("Upload housing data CSV", type="csv")
