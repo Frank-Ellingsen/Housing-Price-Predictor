@@ -26,47 +26,6 @@ st.set_page_config(
 
 st.title("🏘️ Housing Price Tier Prediction")
 
-    # Show full prediction results
-st.subheader("📈 Full Prediction Results")
-
-prediction_df = pd.DataFrame({
-        "Actual Price": y_test,
-        "Predicted Price": y_pred,
-        "Error": y_test - y_pred
-    })
-
-st.dataframe(prediction_df.style.format({
-        "Actual Price": "${:,.0f}",
-        "Predicted Price": "${:,.0f}",
-        "Error": "${:,.0f}"
-    }))
-
-st.download_button(
-        label="Download Predictions",
-        data=prediction_df.to_csv(index=False),
-        file_name="predicted_prices.csv",
-        mime="text/csv"
-    )
-
-
-fig, ax = plt.subplots()
-sns.histplot(prediction_df["Error"], bins=30, kde=True, ax=ax, color="purple")
-ax.set_title("Prediction Error Distribution")
-ax.set_xlabel("Error ($)")
-st.pyplot(fig)
-
-
-with st.expander("📂 View Full Dataset"):
-    st.dataframe(data)
-st.dataframe(data.head(10))
-
-st.download_button(
-    label="Download Dataset",
-    data=data.to_csv(index=False),
-    file_name="housing.csv",
-    mime="text/csv"
-)
-
 
 
 uploaded_file = st.file_uploader("Upload housing data CSV", type="csv")
