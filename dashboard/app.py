@@ -74,34 +74,37 @@ if uploaded_file:
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     
-    # After model.fit(...) and y_pred = model.predict(X_test)
-
     st.subheader("📈 Full Prediction Results")
 
-    prediction_df = pd.DataFrame({
+prediction_df = pd.DataFrame({
     "Actual Price": y_test,
     "Predicted Price": y_pred,
     "Error": y_test - y_pred
 })
 
-    st.dataframe(prediction_df.style.format({
+st.dataframe(prediction_df.style.format({
     "Actual Price": "${:,.0f}",
     "Predicted Price": "${:,.0f}",
     "Error": "${:,.0f}"
 }))
 
-    st.download_button(
+st.download_button(
     label="Download Predictions",
     data=prediction_df.to_csv(index=False),
     file_name="predicted_prices.csv",
     mime="text/csv"
 )
 
-    fig, ax = plt.subplots()
-    sns.histplot(prediction_df["Error"], bins=30, kde=True, ax=ax, color="purple")
-    ax.set_title("Prediction Error Distribution")
-    ax.set_xlabel("Error ($)")
-    st.pyplot(fig)
+fig, ax = plt.subplots()
+sns.histplot(prediction_df["Error"], bins=30, kde=True, ax=ax, color="purple")
+ax.set_title("Prediction Error Distribution")
+ax.set_xlabel("Error ($)")
+st.pyplot(fig)
+
+    
+    
+    
+    # After model.fit(...) and y_pred = model.predict(X_test)
 
     
 
