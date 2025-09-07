@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+
 ## Tech Stack
 
 # 🏠 Housing Price Tier Prediction Pipeline
@@ -17,7 +19,7 @@ An end-to-end ML pipeline using  **ZenML** ,  **MLflow** , and **Streamlit** to 
 house_pricing/
 ├── dashboard/             # Streamlit dashboard
 │   └── Dockerfile         # Dockerfile for dashboard container
-├── data/        
+├── data/    
 │   ├── processed/         # Cleaned datasets
 │   └── raw/               # Raw scraped or downloaded data
 ├── mlruns/                # MLflow experiment tracking
@@ -55,19 +57,3 @@ streamlit run dashboard/app.py
 data/raw/housing.csv
 
 ```
-
-house_pricing/
-├── dashboard/             # Streamlit dashboard
-│   └── Dockerfile         # Dockerfile for dashboard container
-├── data/                  # Data storage
-│   ├── processed/         # Cleaned datasets
-│   └── raw/               # Raw scraped or downloaded data
-├── mlruns/                # MLflow experiment tracking
-├── models/                # Saved model artifacts
-├── notebooks/             # Jupyter notebooks for exploration
-├── src/                   # Source code
-│   ├── Dockerfile         # Dockerfile for pipeline container
-│   ├── etl/               # Data transformation scripts
-│   ├── ingestion/         # Scraping or API ingestion
-│   ├── modeling/          # Model training and evaluation
-│   └── visualization/     # Mapping and plotting scripts
