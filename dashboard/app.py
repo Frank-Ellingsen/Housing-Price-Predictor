@@ -10,6 +10,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
 
 
+@st.cache_data
+def load_data():
+    return pd.read_csv("housing.csv")
+
+data = load_data()
+
 st.set_page_config(page_title="🏠 Housing Price Dashboard", layout="wide")
 st.title("🏘️ Housing Price Tier Prediction")
 
