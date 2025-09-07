@@ -1,0 +1,26 @@
+# Python
+notebooks/
+__pycache__/
+*.pyc
+.venv3108/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# MLflow
+mlruns/
+
+# Streamlit
+*.html
+*.log
+
+# VS Code
+.vscode/
+
+# .gitignore
+# Ignore other data files
+*.xlsx
+*.parquet
+
+# Keep this one
+!data/housing.csv

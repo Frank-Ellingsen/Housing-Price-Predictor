@@ -1,0 +1,240 @@
+house_pricing/
+├── .venv/                      # Python virtual environment
+├── data/                       # Raw and processed data
+│   ├── raw/
+│   └── processed/
+├── notebooks/                  # Jupyter notebooks for exploration
+├── src/                        # Source code
+│   ├── ingestion/              # Scraping or API scripts
+│   ├── etl/                    # Data cleaning and transformation
+│   ├── modeling/               # Model training and evaluation
+│   ├── visualization/          # Mapping and dashboard logic
+│   └── pipeline.py             # ZenML pipeline definition
+├── dashboard/                  # Streamlit app
+│   └── app.py
+├── models/                     # Saved models
+├── mlruns/                     # MLflow tracking artifacts
+├── Dockerfile                  # Dockerfile for pipeline
+├── docker-compose.yml          # Compose file for multi-container setup
+├── requirements.txt            # Python dependencies
+├── .gitignore                  # Git ignore rules
+└── README.md                   # Project overview and instructions
+
+
+
+
+Container	Purpose	Context Path	Entrypoint
+pipeline	Run ZenML pipeline + model training	.	src/pipeline.py
+mlflow	Track experiments	mlruns/ volume	mlflow ui
+dashboard	Serve Streamlit dashboard	dashboard/	streamlit run app.py
+
+
+
+
+
+
+
+
+
+
+
+
+🎯 Goal
+Build a pipeline that:
+
+Collects housing data (via API or scraping)
+
+Cleans and transforms it
+
+Trains a classification model to predict price tiers (e.g. low, medium, high)
+
+Stores results in a database
+
+Tracks experiments with MLflow
+
+Visualizes predictions on an interactive map
+
+Orchestrates everything with ZenML
+
+
+🧱 Architecture Overview
+Layer	Tools Used
+Data Ingestion	requests, BeautifulSoup, pandas
+ETL	pandas, scikit-learn, sqlalchemy
+Storage	SQLite or MySQL
+Modeling	scikit-learn, xgboost, lightgbm
+Tracking	MLflow
+Orchestration	ZenML
+Visualization	folium, plotly, streamlit
+
+🔁 Workflow Breakdown
+1. 🏘️ Data Collection
+Scrape housing listings from sites like Zillow, Finn.no, or use public datasets like Kaggle’s Ames Housing.
+
+Extract: price, location, square footage, bedrooms, year built, latitude, longitude.
+
+python
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://www.finn.no/realestate/homes/search.html"
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+# Parse listings...
+
+2. 🧹 ETL Pipeline
+Handle missing values
+
+Encode categorical variables
+
+Normalize numerical features
+
+Create price tiers:
+
+python
+df["price_category"] = pd.qcut(df["price"], q=3, labels=["Low", "Medium", "High"])
+
+
+3. 🧠 Model Training
+Train a classifier (e.g. RandomForest, XGBoost) to predict price_category
+
+Evaluate with accuracy, F1-score, confusion matrix
+
+python
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+4. 🧪 MLflow Integration
+Log parameters, metrics, and model artifacts
+
+python
+import mlflow
+
+with mlflow.start_run():
+    mlflow.log_param("model", "RandomForest")
+    mlflow.log_metric("accuracy", accuracy)
+    mlflow.sklearn.log_model(model, "housing_model")
+5. 🔁 ZenML Pipeline
+Define steps: data_loader, preprocessor, trainer, evaluator, predictor
+
+Schedule daily retraining or batch inference
+
+bash
+zenml pipeline run
+6. 🗺️ Geo-Visualization
+Use folium or plotly to map predictions
+
+python
+import folium
+
+map = folium.Map(location=[59.9, 10.7], zoom_start=12)
+for _, row in df.iterrows():
+    folium.CircleMarker(
+        location=[row["latitude"], row["longitude"]],
+        radius=5,
+        color="green" if row["price_category"] == "Low" else "orange" if row["price_category"] == "Medium" else "red",
+        popup=f"{row['price']} NOK"
+    ).add_to(map)
+map.save("housing_map.html")
+
+
+7. 📊 Dashboard
+Use streamlit to build an interactive dashboard:
+
+Filter by location, price tier
+
+View model performance
+
+Display map with predictions
+
+🧪 Bonus Ideas
+Add regression model to predict exact price
+
+Include time-based features for trend analysis
+
+Deploy model as a REST API with FastAPI
+
+Use DVC or MinIO for data versioning
+
+📁 GitHub
+Structure repo with clear folders: data/, notebooks/, src/, dashboard/, models/
+
+Include a rich README.md with architecture diagram, screenshots, and setup instructions
+
+Add badges (e.g. ZenML pipeline status, MLflow experiment links)
+
+🤗 Hugging Face
+Host your trained model with metadata and inference API
+
+Include a model card explaining use case, limitations, and evaluation
+
+🚀 Render
+Deploy your streamlit dashboard or FastAPI backend
+
+Link to live demo in your GitHub README
+
+📦 What to Containerize
+You can create separate Docker containers for key components:
+
+Component	Docker Image Purpose
+ETL & Modeling	Run data cleaning, training, and inference scripts
+MLflow Server	Host experiment tracking dashboard
+Streamlit App	Serve interactive dashboard with map & filters
+FastAPI (optional)	Expose model as REST API for predictions
+
+# Base image
+FROM python:3.10
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project files
+COPY . .
+
+# Run pipeline
+CMD ["python", "src/run_pipeline.py"]
+
+
+FROM python:3.10
+
+WORKDIR /dashboard
+
+COPY dashboard/requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY dashboard/ .
+
+CMD ["streamlit", "run", "app.py"]
+
+version: '3.8'
+services:
+  mlflow:
+    image: mlflow/mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+    command: mlflow ui --host 0.0.0.0
+
+  pipeline:
+    build: .
+    depends_on:
+      - mlflow
+
+  dashboard:
+    build:
+      context: ./dashboard
+    ports:ve
+      - "8501:8501"
+
+
+Deployment Options
+Render: Deploy your Streamlit app or FastAPI backend with Docker support
+
+Hugging Face Spaces: Use Dockerfile to host your model and dashboard
+
+GitHub Actions: Automate builds and tests using Docker con
