@@ -24,6 +24,20 @@ st.set_page_config(
 
 st.title("🏘️ Housing Price Tier Prediction")
 
+st.download_button(
+        label="Download Predictions",
+        data=prediction_df.to_csv(index=False),
+        file_name="predicted_prices.csv",
+        mime="text/csv"
+    )
+
+fig, ax = plt.subplots()
+sns.histplot(prediction_df["Error"], bins=30, kde=True, ax=ax, color="purple")
+ax.set_title("Prediction Error Distribution")
+ax.set_xlabel("Error ($)")
+st.pyplot(fig)
+
+
 with st.expander("📂 View Full Dataset"):
     st.dataframe(data)
 st.dataframe(data.head(10))
