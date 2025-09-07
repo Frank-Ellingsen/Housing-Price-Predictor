@@ -24,6 +24,21 @@ st.set_page_config(
 
 st.title("🏘️ Housing Price Tier Prediction")
 
+    # Show full prediction results
+st.subheader("📈 Full Prediction Results")
+
+prediction_df = pd.DataFrame({
+        "Actual Price": y_test,
+        "Predicted Price": y_pred,
+        "Error": y_test - y_pred
+    })
+
+st.dataframe(prediction_df.style.format({
+        "Actual Price": "${:,.0f}",
+        "Predicted Price": "${:,.0f}",
+        "Error": "${:,.0f}"
+    }))
+
 st.download_button(
         label="Download Predictions",
         data=prediction_df.to_csv(index=False),
