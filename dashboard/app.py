@@ -1,3 +1,4 @@
+
 # 📦 Imports
 import streamlit as st
 import requests
@@ -9,6 +10,7 @@ import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
+import io
 
 sns.set_theme(style="darkgrid")
 
@@ -25,16 +27,21 @@ data = load_data()
 
 # 📥 File Upload
 uploaded_file = st.file_uploader("Upload housing data CSV", type="csv")
+
 if uploaded_file:
+    # ✅ Process uploaded file
     df = pd.read_csv(uploaded_file)
     df.columns = df.columns.str.strip().str.lower()
 
+    # Clean price column
     if df["price"].dtype == "object":
         df["price"] = df["price"].str.replace('[\$,]', '', regex=True).str.strip().astype(float)
 
+    # Add price category if missing
     if "price_category" not in df.columns:
         df["price_category"] = pd.qcut(df["price"], q=3, labels=["Low", "Medium", "High"])
 
+    # Feature engineering
     zip_avg_price = df.groupby("zipcode")["price"].transform("mean")
     df["zipcode_bin"] = pd.qcut(zip_avg_price, q=3, labels=["Low", "Medium", "High"])
     df["zipcode_bin"] = df["zipcode_bin"].map({"Low": 1, "Medium": 2, "High": 3})
@@ -49,6 +56,7 @@ if uploaded_file:
 
     df = pd.get_dummies(df, columns=["zipcode"], drop_first=True)
 
+    # Prepare features
     final_features = [col for col in df.columns if col not in ["price", "price_category", "id"]]
     X = df[final_features]
     y = df["price"]
@@ -73,6 +81,7 @@ if uploaded_file:
     }))
     st.download_button("Download Predictions", prediction_df.to_csv(index=False), "predicted_prices.csv", "text/csv")
 
+    # Error distribution plot
     fig, ax = plt.subplots()
     sns.histplot(prediction_df["Error"], bins=30, kde=True, ax=ax, color="purple")
     ax.set_title("Prediction Error Distribution")
@@ -185,32 +194,24 @@ if uploaded_file:
         st.success(f"🏷️ Estimated Price: ${predicted_price:,.0f} USD")
         st.caption(f"Model MAE: ±${mae:,.0f}")
 
+else:
+    # ✅ Handle case when no file is uploaded
+    st.info("No file uploaded. Using default dataset or fetch from GitHub if needed.")
 
-
-
- 
- 
-# 📂 Load Default Dataset
-import io
-
-try:
-    # Try loading from local file first
-    df = pd.read_csv("housing_prices.csv")
-    st.success("Dataset loaded successfully from local file.")
-except FileNotFoundError:
-    # Fallback: fetch from GitHub
-    url = "https://raw.githubusercontent.com/Frank-Ellingsen/datafrank.github.io/main/datasets/housing_prices.csv"
-    response = requests.get(url)
-    if response.status_code == 200:
-        df = pd.read_csv(io.StringIO(response.text))
-        st.success("Dataset fetched from GitHub.")
-        
-        # Offer download button
-        st.download_button(
-            label="👈 Download sample CSV to begin",
-            data=response.content,
-            file_name="housing_prices.csv",
-            mime="text/csv"
-        )
-    else:
-        st.error("Failed to fetch dataset from GitHub.")
+    try:
+        df = pd.read_csv("housing_prices.csv")
+        st.success("Dataset loaded successfully from local file.")
+    except FileNotFoundError:
+        url = "https://raw.githubusercontent.com/Frank-Ellingsen/datafrank.github.io/main/datasets/housing_prices.csv"
+        response = requests.get(url)
+        if response.status_code == 200:
+            df = pd.read_csv(io.StringIO(response.text))
+            st.success("Dataset fetched from GitHub.")
+            st.download_button(
+                label="👈 Download sample CSV to begin",
+                data=response.content,
+                file_name="housing_prices.csv",
+                mime="text/csv"
+            )
+        else:
+            st.error("Failed to fetch dataset from GitHub.")
