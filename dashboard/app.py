@@ -190,27 +190,27 @@ if uploaded_file:
 
  
  
+# 📂 Load Default Dataset
 import io
 
-else:
-    # Fetch the CSV file from GitHub
+try:
+    # Try loading from local file first
+    df = pd.read_csv("housing_prices.csv")
+    st.success("Dataset loaded successfully from local file.")
+except FileNotFoundError:
+    # Fallback: fetch from GitHub
     url = "https://raw.githubusercontent.com/Frank-Ellingsen/datafrank.github.io/main/datasets/housing_prices.csv"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # raises HTTPError if not 200
-
-        # Create a download button
+    response = requests.get(url)
+    if response.status_code == 200:
+        df = pd.read_csv(io.StringIO(response.text))
+        st.success("Dataset fetched from GitHub.")
+        
+        # Offer download button
         st.download_button(
             label="👈 Download sample CSV to begin",
             data=response.content,
             file_name="housing_prices.csv",
             mime="text/csv"
         )
-
-        # Optional: preview the data
-        df = pd.read_csv(io.StringIO(response.text))
-        st.write(df.head())
-
-    except Exception as e:
-        st.error(f"Failed to fetch dataset: {e}")
-
+    else:
+        st.error("Failed to fetch dataset from GitHub.")
