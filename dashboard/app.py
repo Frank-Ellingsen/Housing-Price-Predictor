@@ -190,4 +190,4 @@ if uploaded_file:
  
  
 else:
-    st.info("👈 Upload a CSV file to begin.")
+    st.info('[Upload a CSV file to begin 👈](https://github.com/Frank-Ellingsen/datafrank.github.io/blob/main/datasets/housing_prices.csv)')
