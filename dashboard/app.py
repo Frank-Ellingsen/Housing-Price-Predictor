@@ -190,19 +190,27 @@ if uploaded_file:
 
  
  
-import streamlit as st
-import requests
+import io
 
 else:
     # Fetch the CSV file from GitHub
     url = "https://raw.githubusercontent.com/Frank-Ellingsen/datafrank.github.io/main/datasets/housing_prices.csv"
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # raises HTTPError if not 200
 
-    # Create a download button
-    st.download_button(
-        label="👈 Download sample CSV to begin",
-        data=response.content,
-        file_name="housing_prices.csv",
-        mime="text/csv"
-    )
+        # Create a download button
+        st.download_button(
+            label="👈 Download sample CSV to begin",
+            data=response.content,
+            file_name="housing_prices.csv",
+            mime="text/csv"
+        )
+
+        # Optional: preview the data
+        df = pd.read_csv(io.StringIO(response.text))
+        st.write(df.head())
+
+    except Exception as e:
+        st.error(f"Failed to fetch dataset: {e}")
 
