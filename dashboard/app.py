@@ -1,5 +1,6 @@
 # 📦 Imports
 import streamlit as st
+import requests
 import pandas as pd
 import folium
 from streamlit_folium import folium_static
@@ -189,5 +190,19 @@ if uploaded_file:
 
  
  
+import streamlit as st
+import requests
+
 else:
-    st.info('[Upload a CSV file to begin 👈](https://github.com/Frank-Ellingsen/datafrank.github.io/blob/main/datasets/housing_prices.csv)')
+    # Fetch the CSV file from GitHub
+    url = "https://raw.githubusercontent.com/Frank-Ellingsen/datafrank.github.io/main/datasets/housing_prices.csv"
+    response = requests.get(url)
+
+    # Create a download button
+    st.download_button(
+        label="👈 Download sample CSV to begin",
+        data=response.content,
+        file_name="housing_prices.csv",
+        mime="text/csv"
+    )
+
